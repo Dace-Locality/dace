@@ -10,17 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Submodule Repository
+        uses: actions/checkout@v4
+
       - name: Get Last Commit Message
         id: get_message
         run: |
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
       - name: Trigger Parent Repository Workflow
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
         run: |
           curl -X POST -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: token $GITHUB_TOKEN" \
           https://api.github.com/repos/YanghuiWu/locality_dir/dispatches \
-          -d '{"event_type":"update_submodule","client_payload":{"commit_message":"'"${{ env.COMMIT_MESSAGE }}"'"}}'
+          -d '{"event_type":"update_submodule","client_payload":{"commit_message":"'"$COMMIT_MESSAGE"'"}}'
