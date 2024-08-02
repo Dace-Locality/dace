@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: Get Last Commit Message
         id: get_message
-        run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        run: |
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
       - name: Trigger Parent Repository Workflow
         env:
@@ -21,4 +23,4 @@ jobs:
           curl -X POST -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: token $GITHUB_TOKEN" \
           https://api.github.com/repos/YanghuiWu/locality_dir/dispatches \
-          -d '{"event_type":"update_submodule","client_payload":{"commit_message":"'"$COMMIT_MESSAGE"'"}}'
+          -d '{"event_type":"update_submodule","client_payload":{"commit_message":"'"${{ env.COMMIT_MESSAGE }}"'"}}'
